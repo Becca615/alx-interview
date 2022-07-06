@@ -1,52 +1,40 @@
 #!/usr/bin/python3
-"""
-This module contains a method that reads stdin line by line and
-computes metrics
-"""
-import dis
+"""script that reads stdin line by line and computes metrics"""
 import sys
 
 
-def display_metrics(total_size, status_code):
-    """
-    Function that print the metrics
-    """
-
-    print('File size: {}'.format(total_size))
-    for key, value in sorted(status_code.items()):
-        if value != 0:
-            print('{}: {}'.format(key, value))
+counter = 0
+file_size = 0
+status = [200, 301, 400, 401, 403, 404, 405, 500]
+dict = {200: 0, 301: 0, 400: 0, 401: 0,
+        403: 0, 404: 0, 405: 0, 500: 0}
 
 
-if __name__ == '__main__':
-    total_size = 0
-    status_code = {
-        '200': 0,
-        '301': 0,
-        '400': 0,
-        '401': 0,
-        '403': 0,
-        '404': 0,
-        '405': 0,
-        '500': 0
-    }
+def printCode(dict, file_size):
+    """print status"""
+    print("File size: {}".format(file_size))
+    for i in status:
+        if dict[i] != 0:
+            print("{}: {}".format(i, dict[i]))
 
+
+if __name__ == "__main__":
     try:
-        i = 0
         for line in sys.stdin:
-            args = line.split()
-            if len(args) > 6:
-                status = args[-2]
-                file_size = args[-1]
-                total_size += int(file_size)
-                if status in status_code:
-                    i += 1
-                    status_code[status] += 1
-                    if i % 10 == 0:
-                        display_metrics(total_size, status_code)
-
+            if counter != 0 and counter % 10 == 0:
+                printCode(dict, file_size)
+            lst = line.split(' ')
+            if len(lst) != 9:
+                continue
+            counter += 1
+            try:
+                file_size += int(lst[-1])
+                stat = int(lst[-2])
+            except Exception:
+                pass
+            if stat in status:
+                dict[stat] += 1
+        printCode(dict, file_size)
     except KeyboardInterrupt:
-        display_metrics(total_size, status_code)
+        printCode(dict, file_size)
         raise
-    else:
-        display_metrics(total_size, status_code)
