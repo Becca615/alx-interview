@@ -1,40 +1,37 @@
 #!/usr/bin/python3
-"""script that reads stdin line by line and computes metrics"""
+'''a script that reads stdin line by line and computes metrics'''
+
+
 import sys
 
-
+cache = {'200': 0, '301': 0, '400': 0, '401': 0,
+         '403': 0, '404': 0, '405': 0, '500': 0}
+total_size = 0
 counter = 0
-file_size = 0
-status = [200, 301, 400, 401, 403, 404, 405, 500]
-dict = {200: 0, 301: 0, 400: 0, 401: 0,
-        403: 0, 404: 0, 405: 0, 500: 0}
 
-
-def printCode(dict, file_size):
-    """print status"""
-    print("File size: {}".format(file_size))
-    for i in status:
-        if dict[i] != 0:
-            print("{}: {}".format(i, dict[i]))
-
-
-if __name__ == "__main__":
-    try:
-        for line in sys.stdin:
-            if counter != 0 and counter % 10 == 0:
-                printCode(dict, file_size)
-            lst = line.split(' ')
-            if len(lst) != 9:
-                continue
+try:
+    for line in sys.stdin:
+        line_list = line.split(" ")
+        if len(line_list) > 4:
+            code = line_list[-2]
+            size = int(line_list[-1])
+            if code in cache.keys():
+                cache[code] += 1
+            total_size += size
             counter += 1
-            try:
-                file_size += int(lst[-1])
-                stat = int(lst[-2])
-            except Exception:
-                pass
-            if stat in status:
-                dict[stat] += 1
-        printCode(dict, file_size)
-    except KeyboardInterrupt:
-        printCode(dict, file_size)
-        raise
+
+        if counter == 10:
+            counter = 0
+            print('File size: {}'.format(total_size))
+            for key, value in sorted(cache.items()):
+                if value != 0:
+                    print('{}: {}'.format(key, value))
+
+except Exception as err:
+    pass
+
+finally:
+    print('File size: {}'.format(total_size))
+    for key, value in sorted(cache.items()):
+        if value != 0:
+            print('{}: {}'.format(key, value))
