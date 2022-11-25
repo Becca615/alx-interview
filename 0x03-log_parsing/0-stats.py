@@ -1,42 +1,57 @@
 #!/usr/bin/python3
-"""Module contains method that reads stdin line by line and computes metrics"""
+"""
+Module contains method that reads stdin line by line and computes metrics
+"""
+import re
 import sys
 
 
-if __name__ == "__main__":
+def print_log_parsing(CODES, file_size):
+    """
+    function that print parsing logs
+    args:
+        codes: is a dictionary of status code
+        file_size: is the size of status
+    """
+    print("File size: {}".format(file_size))
+    for key, value in sorted(CODES.items()):
+        print("{}: {}".format(key, value))
 
-    def print_stat(status_codes, file_size):
-        """Prints File size and status code count."""
-        print("File size: {}".format(file_size))
-        for k, v in sorted(status_codes.items()):
-            if v != 0:
-                print("{}: {}".format(k, v))
 
-    file_size, count = 0, 0
-    status_codes = {
-        "200": 0,
-        "301": 0,
-        "400": 0,
-        "401": 0,
-        "403": 0,
-        "404": 0,
-        "405": 0,
-        "500": 0,
-    }
+def run():
+    """"
+    function that search the status code and size number
+    """
+    PATTERN = '([\\d]{3})\\s([\\d]{1,4})$'
+    CODES = {}
+    STOP = 10
+    step = 1
+    size = 0
 
-    try:
-        for line in sys.stdin:
-            data = line.split(" ")
+    while True:
+
+        try:
+            line = input()
+
+            status, file_size = re.search(PATTERN, line).group().split()
+
+            size += int(file_size)
+
             try:
-                file_size += int(data[-1])
-                if data[-2] in status_codes.keys():
-                    count += 1
-                    status_codes[data[-2]] += 1
-                    if (count % 10) == 0:
-                        print_stat(status_codes, file_size)
-            except:
-                continue
-        print_stat(status_codes, file_size)
-    except KeyboardInterrupt:
-        print_stat(status_codes, file_size)
-        raise
+                if CODES[status]:
+                    CODES[status] += 1
+            except KeyError:
+                CODES[status] = 1
+
+            if step == STOP:
+                print_log_parsing(CODES, size)
+                step = 1
+
+            step += 1
+        except (KeyboardInterrupt, EOFError):
+            print_log_parsing(CODES, size)
+            exit()
+
+
+if __name__ == '__main__':
+    run()
