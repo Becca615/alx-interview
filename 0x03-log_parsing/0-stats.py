@@ -1,8 +1,5 @@
 #!/usr/bin/python3
-"""
-Module contains method that reads stdin line by line and computes metrics
-"""
-
+"""Module contains method that reads stdin line by line and computes metrics"""
 import sys
 
 
